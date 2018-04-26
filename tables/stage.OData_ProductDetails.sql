@@ -1,0 +1,3 @@
+CREATE TABLE stage.OData_ProductDetails
+([PRODUCTID] VARCHAR (36), [DETAILS] VARCHAR (255))
+GO

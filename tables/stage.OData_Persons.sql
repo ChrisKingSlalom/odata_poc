@@ -1,0 +1,3 @@
+CREATE TABLE stage.OData_Persons
+([ID] INT, [NAME] VARCHAR (255))
+GO

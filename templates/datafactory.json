@@ -1,0 +1,614 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory Name",
+            "defaultValue": "f5pocdf"
+        },
+        "CAPPM_AzureSqlDB_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CAPPM_AzureSqlDB'"
+        },
+        "OData1_password": {
+            "type": "secureString",
+            "metadata": "Secure string for 'password' of 'OData1'"
+        },
+        "OData1_properties_typeProperties_userName": {
+            "type": "string",
+            "defaultValue": "SC51930pDWHHDP"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]",
+        "leftBracket": "["
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/pipeline_COPY_ODATA_ADVERTISEMENTS_AZURESQL')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "COPY_ODATA_ADVERTISEMENTS_AZURESQL",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false
+                        },
+                        "typeProperties": {
+                            "source": {
+                                "type": "RelationalSource"
+                            },
+                            "sink": {
+                                "type": "SqlSink",
+                                "writeBatchSize": 10000,
+                                "preCopyScript": "TRUNCATE TABLE STAGE.ODATA_ADVERTISEMENTS"
+                            },
+                            "enableStaging": false,
+                            "cloudDataMovementUnits": 0,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "columnMappings": "ID: ID, Name: NAME, AirDate: AirDate"
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "OData_Advertisements",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "AzureSqlStage_Advertisements",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "usp_UpdateADVERTISEMENTS",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "COPY_ODATA_ADVERTISEMENTS_AZURESQL",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false
+                        },
+                        "typeProperties": {
+                            "storedProcedureName": "[concat(variables('leftBracket'), 'PRODUCTION].[usp_UpdateADVERTISEMENTS]')]"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "CAPPM_AzureSqlDB",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/OData_Advertisements')]",
+                "[concat(variables('factoryId'), '/datasets/AzureSqlStage_Advertisements')]",
+                "[concat(variables('factoryId'), '/linkedServices/CAPPM_AzureSqlDB')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/OData_Advertisements')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OData1",
+                    "type": "LinkedServiceReference"
+                },
+                "type": "ODataResource",
+                "structure": [
+                    {
+                        "name": "ID",
+                        "type": "Guid"
+                    },
+                    {
+                        "name": "Name",
+                        "type": "String"
+                    },
+                    {
+                        "name": "AirDate",
+                        "type": "DateTime"
+                    }
+                ],
+                "typeProperties": {
+                    "path": "Advertisements"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OData1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureSqlStage_Advertisements')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "CAPPM_AzureSqlDB",
+                    "type": "LinkedServiceReference"
+                },
+                "type": "AzureSqlTable",
+                "structure": [
+                    {
+                        "name": "ID",
+                        "type": "String"
+                    },
+                    {
+                        "name": "NAME",
+                        "type": "String"
+                    },
+                    {
+                        "name": "AirDate",
+                        "type": "DateTime"
+                    }
+                ],
+                "typeProperties": {
+                    "tableName": "[concat(variables('leftBracket'), 'STAGE].[OData_Advertisements]')]"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/CAPPM_AzureSqlDB')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CAPPM_AzureSqlDB')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": {
+                        "type": "SecureString",
+                        "value": "[parameters('CAPPM_AzureSqlDB_connectionString')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/OData1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "type": "OData",
+                "typeProperties": {
+                    "url": "http://services.odata.org/V3/OData/OData.svc",
+                    "authenticationType": "Anonymous",
+                    "userName": "[parameters('OData1_properties_typeProperties_userName')]",
+                    "password": {
+                        "type": "SecureString",
+                        "value": "[parameters('OData1_password')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/pipeline_COPY_ODATA_PRODUCTDETAILS_AZURESQL')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "COPY_ODATA_PRODUCTDETAILS_AZURESQL",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false
+                        },
+                        "typeProperties": {
+                            "source": {
+                                "type": "RelationalSource"
+                            },
+                            "sink": {
+                                "type": "SqlSink",
+                                "writeBatchSize": 10000,
+                                "preCopyScript": "TRUNCATE TABLE STAGE.ODATA_PRODUCTDETAILS"
+                            },
+                            "enableStaging": false,
+                            "cloudDataMovementUnits": 0,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "columnMappings": "ProductID: PRODUCTID, Details: DETAILS"
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "OData_ProductDetails",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "AzureSqlStage_ProductDetails",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "usp_UpdatePRODUCTDETAILS",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "COPY_ODATA_PRODUCTDETAILS_AZURESQL",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false
+                        },
+                        "typeProperties": {
+                            "storedProcedureName": "[concat(variables('leftBracket'), 'PRODUCTION].[usp_UpdatePRODUCTDETAILS]')]"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "CAPPM_AzureSqlDB",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/OData_ProductDetails')]",
+                "[concat(variables('factoryId'), '/datasets/AzureSqlStage_ProductDetails')]",
+                "[concat(variables('factoryId'), '/linkedServices/CAPPM_AzureSqlDB')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/OData_ProductDetails')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OData1",
+                    "type": "LinkedServiceReference"
+                },
+                "type": "ODataResource",
+                "structure": [
+                    {
+                        "name": "ProductID",
+                        "type": "Int32"
+                    },
+                    {
+                        "name": "Details",
+                        "type": "String"
+                    }
+                ],
+                "typeProperties": {
+                    "path": "ProductDetails"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OData1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureSqlStage_ProductDetails')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "CAPPM_AzureSqlDB",
+                    "type": "LinkedServiceReference"
+                },
+                "type": "AzureSqlTable",
+                "structure": [
+                    {
+                        "name": "PRODUCTID",
+                        "type": "String"
+                    },
+                    {
+                        "name": "DETAILS",
+                        "type": "String"
+                    }
+                ],
+                "typeProperties": {
+                    "tableName": "[concat(variables('leftBracket'), 'STAGE].[OData_ProductDetails]')]"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/CAPPM_AzureSqlDB')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/pipeline_COPY_ODATA_CATEGORIES_AZURESQL')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "COPY_ODATA_CATEGORIES_AZURESQL",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false
+                        },
+                        "typeProperties": {
+                            "source": {
+                                "type": "RelationalSource"
+                            },
+                            "sink": {
+                                "type": "SqlSink",
+                                "writeBatchSize": 10000,
+                                "preCopyScript": "TRUNCATE TABLE STAGE.ODATA_CATEGORIES"
+                            },
+                            "enableStaging": false,
+                            "cloudDataMovementUnits": 0,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "columnMappings": "ID: ID, Name: NAME"
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "OData_Categories",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "AzureSqlStage_Categories",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "usp_UpdateCATEGORIES",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "COPY_ODATA_CATEGORIES_AZURESQL",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false
+                        },
+                        "typeProperties": {
+                            "storedProcedureName": "[concat(variables('leftBracket'), 'PRODUCTION].[usp_UpdateCATEGORIES]')]"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "CAPPM_AzureSqlDB",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/OData_Categories')]",
+                "[concat(variables('factoryId'), '/datasets/AzureSqlStage_Categories')]",
+                "[concat(variables('factoryId'), '/linkedServices/CAPPM_AzureSqlDB')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/OData_Categories')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OData1",
+                    "type": "LinkedServiceReference"
+                },
+                "type": "ODataResource",
+                "structure": [
+                    {
+                        "name": "ID",
+                        "type": "Int32"
+                    },
+                    {
+                        "name": "Name",
+                        "type": "String"
+                    }
+                ],
+                "typeProperties": {
+                    "path": "Categories"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OData1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureSqlStage_Categories')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "CAPPM_AzureSqlDB",
+                    "type": "LinkedServiceReference"
+                },
+                "type": "AzureSqlTable",
+                "structure": [
+                    {
+                        "name": "ID",
+                        "type": "Int32"
+                    },
+                    {
+                        "name": "NAME",
+                        "type": "String"
+                    }
+                ],
+                "typeProperties": {
+                    "tableName": "[concat(variables('leftBracket'), 'STAGE].[OData_Categories]')]"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/CAPPM_AzureSqlDB')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/pipeline_COPY_ODATA_PERSONS_AZURESQL')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "COPY_ODATA_PERSONS_AZURESQL",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false
+                        },
+                        "typeProperties": {
+                            "source": {
+                                "type": "RelationalSource"
+                            },
+                            "sink": {
+                                "type": "SqlSink",
+                                "writeBatchSize": 10000,
+                                "preCopyScript": "TRUNCATE TABLE STAGE.ODATA_PERSONS"
+                            },
+                            "enableStaging": false,
+                            "cloudDataMovementUnits": 0,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "columnMappings": "ID: ID, Name: NAME"
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "OData_Persons",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "AzureSqlStage_Persons",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "usp_UpdatePERSONS",
+                        "type": "SqlServerStoredProcedure",
+                        "dependsOn": [
+                            {
+                                "activity": "COPY_ODATA_PERSONS_AZURESQL",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "7.00:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false
+                        },
+                        "typeProperties": {
+                            "storedProcedureName": "[concat(variables('leftBracket'), 'PRODUCTION].[usp_UpdatePERSONS]')]"
+                        },
+                        "linkedServiceName": {
+                            "referenceName": "CAPPM_AzureSqlDB",
+                            "type": "LinkedServiceReference"
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/OData_Persons')]",
+                "[concat(variables('factoryId'), '/datasets/AzureSqlStage_Persons')]",
+                "[concat(variables('factoryId'), '/linkedServices/CAPPM_AzureSqlDB')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/OData_Persons')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "OData1",
+                    "type": "LinkedServiceReference"
+                },
+                "type": "ODataResource",
+                "structure": [
+                    {
+                        "name": "ID",
+                        "type": "Int32"
+                    },
+                    {
+                        "name": "Name",
+                        "type": "String"
+                    }
+                ],
+                "typeProperties": {
+                    "path": "Persons"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/OData1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureSqlStage_Persons')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2017-09-01-preview",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "CAPPM_AzureSqlDB",
+                    "type": "LinkedServiceReference"
+                },
+                "type": "AzureSqlTable",
+                "structure": [
+                    {
+                        "name": "ID",
+                        "type": "Int32"
+                    },
+                    {
+                        "name": "NAME",
+                        "type": "String"
+                    }
+                ],
+                "typeProperties": {
+                    "tableName": "[concat(variables('leftBracket'), 'STAGE].[OData_Persons]')]"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/CAPPM_AzureSqlDB')]"
+            ]
+        }
+    ]
+}
