@@ -3,16 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "factoryName": {
-            "value": "f5pocdf"
+            "value": "F5DataPOCqx5xrtfm47hc6"
         },
-        "CAPPM_AzureSqlDB_connectionString": {
+        "AzureSqlDatabase1_connectionString": {
             "value": ""
-        },
-        "OData1_password": {
-            "value": ""
-        },
-        "OData1_properties_typeProperties_userName": {
-            "value": "SC51930pDWHHDP"
         }
     }
 }

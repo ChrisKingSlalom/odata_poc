@@ -3,77 +3,38 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "servers_f5pocsqlsvr_name": {
-            "defaultValue": "f5pocsqlsvr",
             "type": "String"
         },
+		"sqlAdministratorLogin": {
+			"type": "string"
+		},
+		"sqlAdministratorLoginPassword": {
+			"type": "securestring",
+		},
         "databases_f5pocdb_name": {
-            "defaultValue": "f5pocdb",
             "type": "String"
-        },
-        "firewallRules_all_name": {
-            "defaultValue": "all",
-            "type": "String"
-        },
-        "keys_ServiceManaged_name": {
-            "defaultValue": "ServiceManaged",
-            "type": "String"
-        },
-        "auditingPolicies_Default_name": {
-            "defaultValue": "Default",
-            "type": "String"
-        },
-        "encryptionProtector_current_name": {
-            "defaultValue": "current",
-            "type": "String"
-        },
-        "advisors_DropIndex_name": {
-            "defaultValue": "DropIndex",
-            "type": "String"
-        },
+        }, 
+		"edition": {
+			"DefaultValue": "Standard",
+			"type": "String"
+		},
+		"collation": {
+			"DefaultValue": "SQL_Latin1_General_CP1_CI_AS",
+			"type": "String"
+		},
+		"requestedServiceObjectiveName": {
+			"DefaultValue": "S0",
+			"type": "String"
+		},
         "firewallRules_AllowAllWindowsAzureIps_name": {
-            "defaultValue": "AllowAllWindowsAzureIps",
-            "type": "String"
-        },
-        "advisors_CreateIndex_name": {
-            "defaultValue": "CreateIndex",
-            "type": "String"
-        },
-        "auditingPolicies_Default_name_1": {
-            "defaultValue": "Default",
-            "type": "String"
-        },
-        "databases_master_name": {
-            "defaultValue": "master",
-            "type": "String"
-        },
-        "auditingPolicies_Default_name_2": {
-            "defaultValue": "Default",
-            "type": "String"
-        },
-        "geoBackupPolicies_Default_name": {
-            "defaultValue": "Default",
-            "type": "String"
-        },
-        "geoBackupPolicies_Default_name_1": {
-            "defaultValue": "Default",
-            "type": "String"
-        },
-        "advisors_ForceLastGoodPlan_name": {
-            "defaultValue": "ForceLastGoodPlan",
-            "type": "String"
-        },
-        "advisors_DbParameterization_name": {
-            "defaultValue": "DbParameterization",
             "type": "String"
         },
         "transparentDataEncryption_current_name": {
-            "defaultValue": "current",
             "type": "String"
         },
-        "transparentDataEncryption_current_name_1": {
-            "defaultValue": "current",
-            "type": "String"
-        }
+		"firewallRules_all_name": {
+		  "type": "String"
+		}
     },
     "variables": {},
     "resources": [
@@ -86,34 +47,12 @@
             "location": "eastus",
             "scale": null,
             "properties": {
-                "administratorLogin": "f5admin",
-                "version": "12.0"
+                "version": "12.0",
+				"administratorLogin": "[parameters('sqlAdministratorLogin')]",
+				"administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]"
             },
+			
             "dependsOn": []
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/auditingPolicies/Default'.",
-            "type": "Microsoft.Sql/servers/auditingPolicies",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('auditingPolicies_Default_name'))]",
-            "apiVersion": "2014-04-01",
-            "location": "East US",
-            "scale": null,
-            "properties": {
-                "auditingState": "New",
-                "eventTypesToAudit": "PlainSQL_Success,PlainSQL_Failure,ParameterizedSQL_Success,ParameterizedSQL_Failure,StoredProcedure_Success,StoredProcedure_Failure,Login_Success,Login_Failure,TransactionManagement_Success,TransactionManagement_Failure",
-                "storageAccountName": null,
-                "storageAccountKey": null,
-                "storageAccountSecondaryKey": null,
-                "storageTableEndpoint": null,
-                "storageAccountResourceGroupName": null,
-                "storageAccountSubscriptionId": null,
-                "fullAuditLogsTableName": "SQLDBAuditLogsF5pocsqlsvr",
-                "auditLogsTableName": "F5pocsqlsvr",
-                "retentionDays": "0"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]"
-            ]
         },
         {
             "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/f5pocdb'.",
@@ -124,25 +63,9 @@
             "location": "East US",
             "scale": null,
             "properties": {
-                "databaseId": "22c12ea0-92a0-4557-a960-41d72753a20d",
                 "edition": "Standard",
-                "status": "Online",
-                "serviceLevelObjective": "S0",
                 "collation": "SQL_Latin1_General_CP1_CI_AS",
-                "maxSizeBytes": "268435456000",
-                "creationDate": "2018-04-25T20:20:34.047Z",
-                "currentServiceObjectiveId": "f1173c43-91bd-4aaa-973c-54e79e15235b",
-                "requestedServiceObjectiveId": "f1173c43-91bd-4aaa-973c-54e79e15235b",
-                "requestedServiceObjectiveName": "S0",
-                "sampleName": null,
-                "defaultSecondaryLocation": "West US",
-                "earliestRestoreDate": "2018-04-25T20:51:30.547Z",
-                "elasticPoolName": null,
-                "containmentState": 2,
-                "readScale": "Disabled",
-                "failoverGroupId": null,
-                "zoneRedundant": false,
-                "isUpgradeRequested": false
+                "requestedServiceObjectiveName": "S0"
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]"
@@ -181,135 +104,9 @@
             ]
         },
         {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/encryptionProtector/current'.",
-            "type": "Microsoft.Sql/servers/encryptionProtector",
-            "kind": "servicemanaged",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('encryptionProtector_current_name'))]",
-            "apiVersion": "2015-05-01-preview",
-            "scale": null,
-            "properties": {
-                "serverKeyName": "ServiceManaged",
-                "serverKeyType": "ServiceManaged"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/keys/ServiceManaged'.",
-            "type": "Microsoft.Sql/servers/keys",
-            "kind": "servicemanaged",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('keys_ServiceManaged_name'))]",
-            "apiVersion": "2015-05-01-preview",
-            "scale": null,
-            "properties": {
-                "serverKeyType": "[parameters('keys_ServiceManaged_name')]"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/f5pocdb/advisors/CreateIndex'.",
-            "type": "Microsoft.Sql/servers/databases/advisors",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_f5pocdb_name'), '/', parameters('advisors_CreateIndex_name'))]",
-            "apiVersion": "2014-04-01",
-            "scale": null,
-            "properties": {
-                "autoExecuteValue": "Disabled"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]",
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_f5pocsqlsvr_name'), parameters('databases_f5pocdb_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/f5pocdb/advisors/DropIndex'.",
-            "type": "Microsoft.Sql/servers/databases/advisors",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_f5pocdb_name'), '/', parameters('advisors_DropIndex_name'))]",
-            "apiVersion": "2014-04-01",
-            "scale": null,
-            "properties": {
-                "autoExecuteValue": "Disabled"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]",
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_f5pocsqlsvr_name'), parameters('databases_f5pocdb_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/f5pocdb/advisors/DbParameterization'.",
-            "type": "Microsoft.Sql/servers/databases/advisors",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_f5pocdb_name'), '/', parameters('advisors_DbParameterization_name'))]",
-            "apiVersion": "2014-04-01",
-            "scale": null,
-            "properties": {
-                "autoExecuteValue": "Disabled"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]",
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_f5pocsqlsvr_name'), parameters('databases_f5pocdb_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/f5pocdb/advisors/ForceLastGoodPlan'.",
-            "type": "Microsoft.Sql/servers/databases/advisors",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_f5pocdb_name'), '/', parameters('advisors_ForceLastGoodPlan_name'))]",
-            "apiVersion": "2014-04-01",
-            "scale": null,
-            "properties": {
-                "autoExecuteValue": "Disabled"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]",
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_f5pocsqlsvr_name'), parameters('databases_f5pocdb_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/f5pocdb/auditingPolicies/Default'.",
-            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_f5pocdb_name'), '/', parameters('auditingPolicies_Default_name_2'))]",
-            "apiVersion": "2014-04-01",
-            "location": "East US",
-            "scale": null,
-            "properties": {
-                "auditingState": "New",
-                "eventTypesToAudit": "PlainSQL_Success,PlainSQL_Failure,ParameterizedSQL_Success,ParameterizedSQL_Failure,StoredProcedure_Success,StoredProcedure_Failure,Login_Success,Login_Failure,TransactionManagement_Success,TransactionManagement_Failure",
-                "storageAccountName": null,
-                "storageAccountKey": null,
-                "storageAccountSecondaryKey": null,
-                "storageTableEndpoint": null,
-                "storageAccountResourceGroupName": null,
-                "storageAccountSubscriptionId": null,
-                "useServerDefault": "Enabled",
-                "fullAuditLogsTableName": "SQLDBAuditLogsF5pocsqlsvrF5pocdb",
-                "auditLogsTableName": "F5pocsqlsvrF5pocdb",
-                "retentionDays": "0"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]",
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_f5pocsqlsvr_name'), parameters('databases_f5pocdb_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/f5pocdb/geoBackupPolicies/Default'.",
-            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_f5pocdb_name'), '/', parameters('geoBackupPolicies_Default_name_1'))]",
-            "apiVersion": "2014-04-01",
-            "location": "East US",
-            "scale": null,
-            "properties": {
-                "state": "Enabled"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]",
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_f5pocsqlsvr_name'), parameters('databases_f5pocdb_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/f5pocdb/transparentDataEncryption/current'.",
+            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/master/transparentDataEncryption/current'.",
             "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_f5pocdb_name'), '/', parameters('transparentDataEncryption_current_name_1'))]",
+            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_f5pocdb_name'), '/', parameters('transparentDataEncryption_current_name'))]",
             "apiVersion": "2014-04-01",
             "location": "East US",
             "scale": null,
@@ -317,61 +114,7 @@
                 "status": "Enabled"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]",
-                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_f5pocsqlsvr_name'), parameters('databases_f5pocdb_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/master/auditingPolicies/Default'.",
-            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_master_name'), '/', parameters('auditingPolicies_Default_name_1'))]",
-            "apiVersion": "2014-04-01",
-            "location": "East US",
-            "scale": null,
-            "properties": {
-                "auditingState": "New",
-                "eventTypesToAudit": "PlainSQL_Success,PlainSQL_Failure,ParameterizedSQL_Success,ParameterizedSQL_Failure,StoredProcedure_Success,StoredProcedure_Failure,Login_Success,Login_Failure,TransactionManagement_Success,TransactionManagement_Failure",
-                "storageAccountName": null,
-                "storageAccountKey": null,
-                "storageAccountSecondaryKey": null,
-                "storageTableEndpoint": null,
-                "storageAccountResourceGroupName": null,
-                "storageAccountSubscriptionId": null,
-                "useServerDefault": "Enabled",
-                "fullAuditLogsTableName": "SQLDBAuditLogsF5pocsqlsvrMaster",
-                "auditLogsTableName": "F5pocsqlsvrMaster",
-                "retentionDays": "0"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/master/geoBackupPolicies/Default'.",
-            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_master_name'), '/', parameters('geoBackupPolicies_Default_name'))]",
-            "apiVersion": "2014-04-01",
-            "location": "East US",
-            "scale": null,
-            "properties": {
-                "state": "Enabled"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/60c81827-e430-4f96-8a06-30066294ecc7/resourceGroups/f5pocrg/providers/Microsoft.Sql/servers/f5pocsqlsvr/databases/master/transparentDataEncryption/current'.",
-            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
-            "name": "[concat(parameters('servers_f5pocsqlsvr_name'), '/', parameters('databases_master_name'), '/', parameters('transparentDataEncryption_current_name'))]",
-            "apiVersion": "2014-04-01",
-            "location": "East US",
-            "scale": null,
-            "properties": {
-                "status": "Disabled"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('servers_f5pocsqlsvr_name'))]"
+                "[parameters('databases_f5pocdb_name')]" 
             ]
         }
     ]

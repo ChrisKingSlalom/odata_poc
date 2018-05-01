@@ -1,60 +1,28 @@
-{
+
+ {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "servers_f5pocsqlsvr_name": {
-            "value": null
+            "value": "f5pocsqlsvr"
         },
+		"sqlAdministratorLogin": {
+            "value": "f5pocsqlsvradmin"
+		},
+		"sqlAdministratorLoginPassword": {
+			"value": "F5PocSqlPassword123!"
+		},
         "databases_f5pocdb_name": {
-            "value": null
+            "value": "f5pocsqldb"
         },
         "firewallRules_all_name": {
-            "value": null
-        },
-        "keys_ServiceManaged_name": {
-            "value": null
-        },
-        "auditingPolicies_Default_name": {
-            "value": null
-        },
-        "encryptionProtector_current_name": {
-            "value": null
-        },
-        "advisors_DropIndex_name": {
-            "value": null
-        },
-        "firewallRules_AllowAllWindowsAzureIps_name": {
-            "value": null
-        },
-        "advisors_CreateIndex_name": {
-            "value": null
-        },
-        "auditingPolicies_Default_name_1": {
-            "value": null
-        },
-        "databases_master_name": {
-            "value": null
-        },
-        "auditingPolicies_Default_name_2": {
-            "value": null
-        },
-        "geoBackupPolicies_Default_name": {
-            "value": null
-        },
-        "geoBackupPolicies_Default_name_1": {
-            "value": null
-        },
-        "advisors_ForceLastGoodPlan_name": {
-            "value": null
-        },
-        "advisors_DbParameterization_name": {
-            "value": null
+            "value": "firewallRules_all_name"
         },
         "transparentDataEncryption_current_name": {
-            "value": null
+            "value": "current"
         },
-        "transparentDataEncryption_current_name_1": {
-            "value": null
-        }
+		"firewallRules_AllowAllWindowsAzureIps_name": {
+            "value": "AllowAllWindowsAzureIps"
+        },
     }
 }
